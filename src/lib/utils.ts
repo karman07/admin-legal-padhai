@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { API_CONFIG } from '../constants/api'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -77,4 +78,17 @@ export function debounce<T extends (...args: any[]) => any>(
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
+}
+
+/**
+ * Resolve a relative backend path using API base URL from env.
+ */
+export function resolveApiFileUrl(relativeOrAbsolute?: string): string {
+  if (!relativeOrAbsolute) return '';
+  if (/^https?:\/\//i.test(relativeOrAbsolute)) return relativeOrAbsolute;
+
+  const apiBase = (API_CONFIG.BASE_URL || '').replace(/\/+$/, '');
+  const origin = apiBase.endsWith('/api') ? apiBase.slice(0, -4) : apiBase;
+  const normalizedPath = relativeOrAbsolute.startsWith('/') ? relativeOrAbsolute : `/${relativeOrAbsolute}`;
+  return `${origin}${normalizedPath}`;
 }

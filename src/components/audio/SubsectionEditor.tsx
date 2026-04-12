@@ -2,6 +2,7 @@ import { Plus, Trash2, Upload } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import type { AudioSubsection } from '../../types/media';
+import { resolveApiFileUrl } from '../../lib/utils';
 
 interface SubsectionEditorProps {
   sectionIndex: number;
@@ -101,6 +102,18 @@ export const SubsectionEditor = ({ sectionIndex, subsections, onChange, onAudioF
               <input type="file" accept="audio/*" onChange={(e) => handleFileChange(idx, 'easyHindiAudio', e.target.files?.[0] || null)} className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100" />
             </div>
           </div>
+
+          {(subsection.englishAudio || subsection.hindiAudio || subsection.easyEnglishAudio || subsection.easyHindiAudio) && (
+            <div className="rounded-md border border-blue-200 bg-blue-50/40 p-2">
+              <p className="text-[11px] font-semibold text-blue-800 mb-1">Current Subsection Audio</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {subsection.englishAudio?.url && <audio controls className="w-full" src={resolveApiFileUrl(subsection.englishAudio.url)} />}
+                {subsection.hindiAudio?.url && <audio controls className="w-full" src={resolveApiFileUrl(subsection.hindiAudio.url)} />}
+                {subsection.easyEnglishAudio?.url && <audio controls className="w-full" src={resolveApiFileUrl(subsection.easyEnglishAudio.url)} />}
+                {subsection.easyHindiAudio?.url && <audio controls className="w-full" src={resolveApiFileUrl(subsection.easyHindiAudio.url)} />}
+              </div>
+            </div>
+          )}
         </div>
       ))}
     </div>

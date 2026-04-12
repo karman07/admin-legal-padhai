@@ -12,6 +12,8 @@ import {
   Menu,
   X,
   Music,
+  NotebookText,
+  Activity,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { adminService } from '../../services/adminService';
@@ -21,8 +23,8 @@ interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   onLogout?: () => void;
-  onNavigate?: (view: 'dashboard' | 'quizzes' | 'media') => void;
-  currentView?: 'dashboard' | 'quizzes' | 'media';
+  onNavigate?: (view: 'dashboard' | 'quizzes' | 'media' | 'blogs' | 'operations') => void;
+  currentView?: 'dashboard' | 'quizzes' | 'media' | 'blogs' | 'operations';
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout, onNavigate, currentView = 'dashboard' }) => {
@@ -55,6 +57,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout, on
       href: '#',
       key: 'media' as const,
     },
+    {
+      icon: NotebookText,
+      label: 'Blogs',
+      href: '#',
+      key: 'blogs' as const,
+    },
+    {
+      icon: Activity,
+      label: 'Operations',
+      href: '#',
+      key: 'operations' as const,
+    },
   ];
 
   return (
@@ -78,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout, on
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">LP</span>
               </div>
               <div>
@@ -131,9 +145,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout, on
                 ) : (
                   <Sun className="w-5 h-5" />
                 )}
-                <span className="font-medium">
+                {/* <span className="font-medium">
                   {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-                </span>
+                </span> */}
               </span>
             </button>
 

@@ -18,6 +18,7 @@ import type {
   AuthResponse,
   SearchResponse,
   ApiError,
+  SystemOverviewResponse,
 } from '../types';
 
 class AdminService {
@@ -208,6 +209,20 @@ class AdminService {
         personalRegistrations: personalCount,
         instituteRegistrations: instituteCount,
       };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get global platform overview for admin operations page
+   */
+  async getSystemOverview(): Promise<SystemOverviewResponse> {
+    try {
+      const response = await this.api.get<SystemOverviewResponse>(
+        API_ENDPOINTS.ADMIN.SYSTEM_OVERVIEW
+      );
+      return response.data;
     } catch (error) {
       throw error;
     }

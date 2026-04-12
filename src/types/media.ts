@@ -52,6 +52,7 @@ export interface AudioLesson {
 
 export interface PDF {
   _id: string;
+  title?: string;
   diary_no?: string;
   case_no?: string;
   pet?: string;
@@ -60,8 +61,12 @@ export interface PDF {
   bench?: string;
   judgement_by?: string;
   judgment_dates?: Date;
+  year?: number;
   link?: string;
   file?: string;
+  fileUrl?: string | null;
+  category?: string;
+  isActive?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -90,4 +95,66 @@ export interface Category {
   id: string;
   name: string;
   count?: number;
+}
+
+export interface ResourceItem {
+  _id: string;
+  title: string;
+  description?: string;
+  fileType: 'pdf' | 'md';
+  fileName: string;
+  fileUrl: string;
+  originalName?: string;
+  category?: string;
+  tags?: string[];
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PaginatedResourcesResponse {
+  items: ResourceItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface AudioSectionListItem {
+  _index: number;
+  title: string;
+  totalSubsections?: number;
+  hasEnglishAudio?: boolean;
+  hasHindiAudio?: boolean;
+  hasEasyEnglishAudio?: boolean;
+  hasEasyHindiAudio?: boolean;
+  englishTextPreview?: string;
+}
+
+export interface AudioSubsectionListItem {
+  _index: number;
+  title: string;
+  hasEnglishAudio?: boolean;
+  hasHindiAudio?: boolean;
+  hasEasyEnglishAudio?: boolean;
+  hasEasyHindiAudio?: boolean;
+  englishTextPreview?: string;
+}
+
+export interface PaginatedAudioSectionsResponse {
+  items: AudioSectionListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedAudioSubsectionsResponse {
+  items: AudioSubsectionListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }

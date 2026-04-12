@@ -8,6 +8,7 @@ import { mediaService } from '../../services/mediaService';
 import type { PDF } from '../../types/media';
 import { PDFUploadModal } from './PDFUploadModal';
 import { PDFEditModal } from './PDFEditModal';
+import { resolveApiFileUrl } from '../../lib/utils';
 
 export const PDFManager = () => {
   const [pdfs, setPdfs] = useState<PDF[]>([]);
@@ -17,7 +18,9 @@ export const PDFManager = () => {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [appliedSearch, setAppliedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState('');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingPDF, setEditingPDF] = useState<PDF | null>(null);
 
@@ -26,6 +29,8 @@ export const PDFManager = () => {
     try {
       const params: any = { page, limit };
       if (statusFilter) params.isActive = statusFilter === 'true';
+      if (appliedSearch) params.search = appliedSearch;
+      if (yearFilter && !Number.isNaN(Number(yearFilter))) params.year = Number(yearFilter);
       const data = await mediaService.listPDFs(params);
       setPdfs(data.pdfs);
       setTotal(data.pagination.total);
@@ -38,7 +43,15 @@ export const PDFManager = () => {
 
   useEffect(() => {
     fetchPDFs();
-  }, [page, limit, statusFilter]);
+  }, [page, limit, statusFilter, appliedSearch, yearFilter]);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setPage(1);
+      setAppliedSearch(searchTerm.trim());
+    }, 350);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this PDF?')) return;
@@ -47,15 +60,6 @@ export const PDFManager = () => {
       fetchPDFs();
     } catch (e) {}
   };
-
-  const filteredPDFs = pdfs.filter((p) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      (p.case_no?.toLowerCase().includes(searchLower)) ||
-      (p.pet?.toLowerCase().includes(searchLower)) ||
-      (p.diary_no?.toLowerCase().includes(searchLower))
-    );
-  });
 
   return (
     <>
@@ -76,6 +80,12 @@ export const PDFManager = () => {
               <option value="true">Active</option>
               <option value="false">Inactive</option>
             </Select>
+            <Input
+              placeholder="Year"
+              value={yearFilter}
+              onChange={(e) => setYearFilter(e.target.value.replace(/[^0-9]/g, ''))}
+              className="w-24"
+            />
           </div>
           <Button onClick={() => setShowUploadModal(true)} className="gap-2">
             <Upload className="w-4 h-4" /> Upload PDF
@@ -86,7 +96,7 @@ export const PDFManager = () => {
           <div className="text-center py-12">
             <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
           </div>
-        ) : filteredPDFs.length === 0 ? (
+        ) : pdfs.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
               <p className="text-gray-500 dark:text-gray-400">No PDFs found</p>
@@ -94,7 +104,7 @@ export const PDFManager = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            {filteredPDFs.map((pdf) => (
+            {pdfs.map((pdf) => (
               <Card key={pdf._id} className="hover:shadow-md transition-all border border-gray-200 dark:border-gray-800">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between gap-4">
@@ -102,7 +112,7 @@ export const PDFManager = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
-                            {pdf.case_no || 'Untitled'}
+                            {pdf.title || pdf.case_no || 'Untitled'}
                           </h3>
                           <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                             {pdf.diary_no && <span>Diary: {pdf.diary_no}</span>}
@@ -142,7 +152,12 @@ export const PDFManager = () => {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <Button variant="outline" size="sm" onClick={() => window.open(pdf.link || pdf.file, '_blank')} className="gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(resolveApiFileUrl(pdf.fileUrl || pdf.link || pdf.file), '_blank')}
+                        className="gap-2"
+                      >
                         <Eye className="w-4 h-4" /> View
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => setEditingPDF(pdf)} className="gap-2">
@@ -159,10 +174,10 @@ export const PDFManager = () => {
           </div>
         )}
 
-        {!loading && filteredPDFs.length > 0 && (
+        {!loading && pdfs.length > 0 && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}
+              {total > 0 ? `Showing ${(page - 1) * limit + 1} to ${Math.min(page * limit, total)} of ${total}` : 'Showing 0 of 0'}
             </p>
             <div className="flex items-center gap-2">
               <Button variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>
@@ -176,6 +191,7 @@ export const PDFManager = () => {
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="50">50</option>
+                <option value="100">100</option>
               </Select>
             </div>
           </div>

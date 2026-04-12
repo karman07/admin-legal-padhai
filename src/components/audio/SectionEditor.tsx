@@ -4,6 +4,7 @@ import { Input } from '../ui/input';
 import type { AudioSection } from '../../types/media';
 import { SubsectionEditor } from './SubsectionEditor';
 import { useState } from 'react';
+import { resolveApiFileUrl } from '../../lib/utils';
 
 interface SectionEditorProps {
   sections: AudioSection[];
@@ -156,6 +157,26 @@ export const SectionEditor = ({ sections, onChange, onAudioFileChange, onSubsect
               <input type="file" accept="audio/*" onChange={(e) => handleFileChange(idx, 'easyHindiAudio', e.target.files?.[0] || null)} className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-900 dark:file:text-purple-300" />
             </div>
           </div>
+
+          {(section.englishAudio || section.hindiAudio || section.easyEnglishAudio || section.easyHindiAudio) && (
+            <div className="rounded-md border border-blue-200 bg-blue-50/50 p-3">
+              <p className="text-xs font-semibold text-blue-800 mb-2">Current Section Audio</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {section.englishAudio?.url && (
+                  <audio controls className="w-full" src={resolveApiFileUrl(section.englishAudio.url)} />
+                )}
+                {section.hindiAudio?.url && (
+                  <audio controls className="w-full" src={resolveApiFileUrl(section.hindiAudio.url)} />
+                )}
+                {section.easyEnglishAudio?.url && (
+                  <audio controls className="w-full" src={resolveApiFileUrl(section.easyEnglishAudio.url)} />
+                )}
+                {section.easyHindiAudio?.url && (
+                  <audio controls className="w-full" src={resolveApiFileUrl(section.easyHindiAudio.url)} />
+                )}
+              </div>
+            </div>
+          )}
 
           {expandedSections.has(idx) && (
             <SubsectionEditor

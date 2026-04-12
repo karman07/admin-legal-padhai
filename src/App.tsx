@@ -3,6 +3,8 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { Dashboard } from './pages/Dashboard';
 import { QuizAdmin } from './pages/QuizAdmin';
 import { MediaManager } from './pages/MediaManager';
+import { BlogsAdmin } from './pages/BlogsAdmin';
+import { OperationsCenter } from './pages/OperationsCenter';
 import { Login } from './pages/Login';
 import { Toaster } from 'sonner';
 import { adminService } from './services/adminService';
@@ -10,7 +12,7 @@ import { adminService } from './services/adminService';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [view, setView] = useState<'dashboard' | 'quizzes' | 'media'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'quizzes' | 'media' | 'blogs' | 'operations'>('dashboard');
 
   useEffect(() => {
     // Check if user is already authenticated
@@ -66,7 +68,7 @@ export default App;
 
 // Small wrapper to reuse existing Sidebar component and switch views
 import { Sidebar } from './components/layout/Sidebar';
-const SidebarStateWrapper: React.FC<{ view: 'dashboard' | 'quizzes' | 'media'; setView: (v: 'dashboard' | 'quizzes' | 'media') => void; onLogout: () => void }>
+const SidebarStateWrapper: React.FC<{ view: 'dashboard' | 'quizzes' | 'media' | 'blogs' | 'operations'; setView: (v: 'dashboard' | 'quizzes' | 'media' | 'blogs' | 'operations') => void; onLogout: () => void }>
   = ({ view, setView, onLogout }) => {
   const [sidebarOpen, setSidebarOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 1024 : true));
   return (
@@ -77,6 +79,10 @@ const SidebarStateWrapper: React.FC<{ view: 'dashboard' | 'quizzes' | 'media'; s
           <Dashboard />
         ) : view === 'quizzes' ? (
           <QuizAdmin />
+        ) : view === 'blogs' ? (
+          <BlogsAdmin />
+        ) : view === 'operations' ? (
+          <OperationsCenter />
         ) : (
           <MediaManager />
         )}

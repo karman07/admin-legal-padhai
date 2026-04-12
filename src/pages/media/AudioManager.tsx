@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Upload, Edit, Trash2, Search } from 'lucide-react';
+import { Upload, Edit, Trash2, Search, Eye } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -8,6 +8,7 @@ import { mediaService } from '../../services/mediaService';
 import type { AudioLesson, Category } from '../../types/media';
 import { AudioUploadModal } from './AudioUploadModal';
 import { AudioEditModal } from './AudioEditModal';
+import { AudioStructureViewerModal } from './AudioStructureViewerModal';
 
 export const AudioManager = () => {
   const [audios, setAudios] = useState<AudioLesson[]>([]);
@@ -18,14 +19,23 @@ export const AudioManager = () => {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [appliedSearch, setAppliedSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingAudio, setEditingAudio] = useState<AudioLesson | null>(null);
+  const [viewingAudio, setViewingAudio] = useState<AudioLesson | null>(null);
 
   const fetchAudios = async () => {
     setLoading(true);
     try {
-      const data = await mediaService.listAudio({ page, limit });
+      const data = await mediaService.listAudio({
+        page,
+        limit,
+        category: categoryFilter || undefined,
+        isActive: statusFilter || undefined,
+        search: appliedSearch || undefined,
+      });
       setAudios(data.audioLessons);
       setTotal(data.pagination.total);
       setTotalPages(data.pagination.totalPages);
@@ -44,11 +54,19 @@ export const AudioManager = () => {
 
   useEffect(() => {
     fetchAudios();
-  }, [page, limit]);
+  }, [page, limit, categoryFilter, statusFilter, appliedSearch]);
 
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setPage(1);
+      setAppliedSearch(searchTerm.trim());
+    }, 350);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this audio lesson?')) return;
@@ -57,14 +75,6 @@ export const AudioManager = () => {
       fetchAudios();
     } catch (e) {}
   };
-
-
-
-  const filteredAudios = audios.filter((a) => {
-    const matchesSearch = a.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !categoryFilter || a.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
 
   // const formatFileSize = (bytes?: number) => {
   //   if (!bytes) return 'N/A';
@@ -95,6 +105,11 @@ export const AudioManager = () => {
                 </option>
               ))}
             </Select>
+            <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+              <option value="">All Status</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </Select>
           </div>
           <Button onClick={() => setShowUploadModal(true)} className="gap-2">
             <Upload className="w-4 h-4" /> Upload Audio
@@ -105,7 +120,7 @@ export const AudioManager = () => {
           <div className="text-center py-12">
             <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
           </div>
-        ) : filteredAudios.length === 0 ? (
+        ) : audios.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
               <p className="text-gray-500 dark:text-gray-400">No audio lessons found</p>
@@ -113,7 +128,7 @@ export const AudioManager = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            {filteredAudios.map((audio) => (
+            {audios.map((audio) => (
               <Card key={audio._id} className="hover:shadow-md transition-all border border-gray-200 dark:border-gray-800">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between gap-4">
@@ -159,7 +174,7 @@ export const AudioManager = () => {
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-gray-700 dark:text-gray-300">Content:</span>
                           {audio.totalSections && <span className="px-2 py-1 text-xs rounded border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400">{audio.totalSections} Sections</span>}
-                          {audio.totalSubsections && audio.totalSubsections > 0 && <span className="px-2 py-1 text-xs rounded border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-400">{audio.totalSubsections} Subsections</span>}
+                          {audio.totalSubsections && audio.totalSubsections > 0 && <span className="px-2 py-1 text-xs rounded border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400">{audio.totalSubsections} Subsections</span>}
                         </div>
                       </div>
 
@@ -178,6 +193,9 @@ export const AudioManager = () => {
                     </div>
 
                     <div className="flex flex-col gap-2">
+                      <Button variant="outline" size="sm" onClick={() => setViewingAudio(audio)} className="gap-2">
+                        <Eye className="w-4 h-4" /> View
+                      </Button>
                       <Button variant="outline" size="sm" onClick={() => setEditingAudio(audio)} className="gap-2">
                         <Edit className="w-4 h-4" /> Edit
                       </Button>
@@ -192,10 +210,10 @@ export const AudioManager = () => {
           </div>
         )}
 
-        {!loading && filteredAudios.length > 0 && (
+        {!loading && audios.length > 0 && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}
+              {total > 0 ? `Showing ${(page - 1) * limit + 1} to ${Math.min(page * limit, total)} of ${total}` : 'Showing 0 of 0'}
             </p>
             <div className="flex items-center gap-2">
               <Button variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>
@@ -209,6 +227,7 @@ export const AudioManager = () => {
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="50">50</option>
+                <option value="100">100</option>
               </Select>
             </div>
           </div>
@@ -235,6 +254,13 @@ export const AudioManager = () => {
             fetchAudios();
           }}
           categories={categories}
+        />
+      )}
+
+      {viewingAudio && (
+        <AudioStructureViewerModal
+          audio={viewingAudio}
+          onClose={() => setViewingAudio(null)}
         />
       )}
     </>

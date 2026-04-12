@@ -163,3 +163,34 @@ export interface PaginatedQuizResponse {
     totalPages?: number;
   };
 }
+
+export interface CrudCoverageItem {
+  module: string;
+  basePath: string;
+  create: boolean;
+  read: boolean;
+  update: boolean;
+  delete: boolean;
+}
+
+export interface SystemOverviewResponse {
+  generatedAt: string;
+  stats: {
+    users: { total: number; active: number; verified: number };
+    quizzes: { total: number; published: number };
+    pdfs: { total: number; active: number };
+    audioLessons: { total: number };
+    notes: { total: number };
+    resources: { total: number; active: number };
+    blogs: { total: number; published: number };
+    chats: { totalMessages: number; totalConversations: number };
+    visitors: { total: number; authenticated: number; anonymous: number };
+    answerChecks: { total: number };
+  };
+  moduleVolume: Array<{ module: string; value: number }>;
+  crudCoverage: CrudCoverageItem[];
+  routeInventory: {
+    admin: string[];
+    publicApi: string[];
+  };
+}

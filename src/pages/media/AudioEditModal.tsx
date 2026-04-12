@@ -16,6 +16,10 @@ interface AudioEditModalProps {
 
 export const AudioEditModal = ({ audio, onClose, onSuccess, categories }: AudioEditModalProps) => {
   const [saving, setSaving] = useState(false);
+  const [loadingSection, setLoadingSection] = useState(false);
+  const [savingSection, setSavingSection] = useState(false);
+  const [selectedSectionIndex, setSelectedSectionIndex] = useState<number>(0);
+  const [sectionsLoaded, setSectionsLoaded] = useState(false);
   const [formData, setFormData] = useState({
     title: audio.title,
     headTitle: audio.headTitle || '',
@@ -49,21 +53,53 @@ export const AudioEditModal = ({ audio, onClose, onSuccess, categories }: AudioE
       data.append('description', formData.description);
       data.append('isActive', String(formData.isActive));
       if (formData.tags) data.append('tags', JSON.stringify(formData.tags.split(',').map(t => t.trim()).filter(t => t)));
-      if (sections.length > 0) data.append('sections', JSON.stringify(sections));
-      
-      sectionAudioFiles.forEach((file, key) => {
-        data.append(key, file);
-      });
-      
-      subsectionAudioFiles.forEach((file, key) => {
-        data.append(key, file);
-      });
+      // Metadata save only. Section updates are handled via per-section endpoint.
 
       await mediaService.updateAudio(audio._id, data);
       onSuccess();
     } catch (e) {
     } finally {
       setSaving(false);
+    }
+  };
+
+  const loadSelectedSection = async () => {
+    setLoadingSection(true);
+    try {
+      const full = await mediaService.getAdminAudioSectionFull(audio._id, selectedSectionIndex);
+      setSections([full as AudioSection]);
+      setSectionAudioFiles(new Map());
+      setSubsectionAudioFiles(new Map());
+      setSectionsLoaded(true);
+    } finally {
+      setLoadingSection(false);
+    }
+  };
+
+  const handleSaveSection = async () => {
+    if (!sectionsLoaded || sections.length === 0) return;
+    setSavingSection(true);
+    try {
+      const data = new FormData();
+      data.append('section', JSON.stringify(sections[0]));
+
+      sectionAudioFiles.forEach((file, key) => {
+        const audioType = key.replace(/^section_0_/, '');
+        data.append(`section_${audioType}`, file);
+      });
+
+      subsectionAudioFiles.forEach((file, key) => {
+        const match = key.match(/^section_0_subsection_(\d+)_(.+)$/);
+        if (!match) return;
+        const subIdx = match[1];
+        const audioType = match[2];
+        data.append(`subsection_${subIdx}_${audioType}`, file);
+      });
+
+      await mediaService.updateAdminAudioSection(audio._id, selectedSectionIndex, data);
+      onSuccess();
+    } finally {
+      setSavingSection(false);
     }
   };
 
@@ -109,8 +145,46 @@ export const AudioEditModal = ({ audio, onClose, onSuccess, categories }: AudioE
             </div>
           </div>
 
-          <div className="border-t pt-4">
-            <SectionEditor sections={sections} onChange={setSections} onAudioFileChange={handleSectionAudioFile} onSubsectionAudioFileChange={handleSubsectionAudioFile} />
+          <div className="border-t pt-4 space-y-3">
+            <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-3 text-sm text-blue-900 dark:text-blue-200 dark:bg-blue-900/20 dark:border-blue-900/40">
+              <p className="font-semibold">Section Editor</p>
+              <p className="text-xs mt-1">
+                For large lessons, load and edit one section at a time.
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Input
+                  type="number"
+                  min={1}
+                  max={Math.max(1, audio.totalSections || 1)}
+                  value={selectedSectionIndex + 1}
+                  onChange={(e) => {
+                    const n = Math.max(1, Number(e.target.value || 1));
+                    setSelectedSectionIndex(n - 1);
+                  }}
+                  className="w-28"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={() => void loadSelectedSection()} disabled={loadingSection}>
+                  {loadingSection ? 'Loading section...' : `Load Section ${selectedSectionIndex + 1}`}
+                </Button>
+              </div>
+            </div>
+
+            {sectionsLoaded && (
+              <>
+                <SectionEditor
+                  sections={sections}
+                  onChange={setSections}
+                  onAudioFileChange={handleSectionAudioFile}
+                  onSubsectionAudioFileChange={handleSubsectionAudioFile}
+                />
+                <div className="flex justify-end">
+                  <Button type="button" onClick={() => void handleSaveSection()} disabled={savingSection} className="gap-2">
+                    <Save className="w-4 h-4" />
+                    {savingSection ? 'Saving Section...' : `Save Section ${selectedSectionIndex + 1}`}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-2 pt-4 border-t">

@@ -8,6 +8,7 @@ import type {
   PaginatedAudioResponse,
   PaginatedPDFResponse,
   Category,
+  StudyMaterialCategory,
   PaginatedResourcesResponse,
   ResourceItem,
   PaginatedAudioSectionsResponse,
@@ -199,6 +200,7 @@ class MediaService {
     fileType?: 'pdf' | 'md';
     category?: string;
     isActive?: string;
+    kind?: 'resource' | 'study-material';
   }): Promise<PaginatedResourcesResponse> {
     const { data } = await this.api.get(API_ENDPOINTS.RESOURCES.LIST, { params });
     return data;
@@ -215,6 +217,56 @@ class MediaService {
   async deleteResource(id: string): Promise<void> {
     await this.api.delete(API_ENDPOINTS.RESOURCES.DELETE(id));
     toast.success('Resource deleted successfully');
+  }
+
+  async listResourceCategories(): Promise<StudyMaterialCategory[]> {
+    const { data } = await this.api.get(API_ENDPOINTS.RESOURCES.CATEGORIES, {
+      params: { kind: 'resource' },
+    });
+    return data || [];
+  }
+
+  async listContentCategories(kind: 'resource' | 'study-material'): Promise<StudyMaterialCategory[]> {
+    const { data } = await this.api.get(API_ENDPOINTS.RESOURCES.CATEGORIES, { params: { kind } });
+    return data || [];
+  }
+
+  async createResourceCategory(name: string): Promise<StudyMaterialCategory> {
+    const { data } = await this.api.post(API_ENDPOINTS.RESOURCES.CATEGORIES, { name, kind: 'resource' });
+    toast.success('Category created successfully');
+    return data;
+  }
+
+  async createContentCategory(name: string, kind: 'resource' | 'study-material'): Promise<StudyMaterialCategory> {
+    const { data } = await this.api.post(API_ENDPOINTS.RESOURCES.CATEGORIES, { name, kind });
+    toast.success('Category created successfully');
+    return data;
+  }
+
+  async updateResourceCategory(id: string, name: string): Promise<StudyMaterialCategory> {
+    const { data } = await this.api.put(API_ENDPOINTS.RESOURCES.CATEGORY_BY_ID(id), { name, kind: 'resource' });
+    toast.success('Category updated successfully');
+    return data;
+  }
+
+  async updateContentCategory(id: string, name: string, kind: 'resource' | 'study-material'): Promise<StudyMaterialCategory> {
+    const { data } = await this.api.put(API_ENDPOINTS.RESOURCES.CATEGORY_BY_ID(id), { name, kind });
+    toast.success('Category updated successfully');
+    return data;
+  }
+
+  async deleteResourceCategory(id: string): Promise<void> {
+    await this.api.delete(API_ENDPOINTS.RESOURCES.CATEGORY_BY_ID(id), {
+      params: { kind: 'resource' },
+    });
+    toast.success('Category deleted successfully');
+  }
+
+  async deleteContentCategory(id: string, kind: 'resource' | 'study-material'): Promise<void> {
+    await this.api.delete(API_ENDPOINTS.RESOURCES.CATEGORY_BY_ID(id), {
+      params: { kind },
+    });
+    toast.success('Category deleted successfully');
   }
 }
 

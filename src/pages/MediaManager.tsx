@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Music, FileText, FolderOpen } from 'lucide-react';
+import { Music, FileText } from 'lucide-react';
 import { AudioManager } from './media/AudioManager';
 import { PDFManager } from './media/PDFManager';
-import { ResourcesManager } from './media/ResourcesManager';
 
 export const MediaManager = () => {
-  const [activeTab, setActiveTab] = useState<'audio' | 'pdf' | 'resources'>('audio');
+  const [activeTab, setActiveTab] = useState<'audio' | 'pdf'>('audio');
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -38,21 +37,9 @@ export const MediaManager = () => {
             <FileText className="w-5 h-5" />
             PDF Documents
           </button>
-
-          <button
-            onClick={() => setActiveTab('resources')}
-            className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 ${
-              activeTab === 'resources'
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            <FolderOpen className="w-5 h-5" />
-            Resources
-          </button>
         </div>
 
-        {activeTab === 'audio' ? <AudioManager /> : activeTab === 'pdf' ? <PDFManager /> : <ResourcesManager />}
+        {activeTab === 'audio' ? <AudioManager /> : <PDFManager />}
       </div>
     </div>
   );

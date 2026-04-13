@@ -14,6 +14,7 @@ import {
   Music,
   NotebookText,
   Activity,
+  FolderKanban,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { adminService } from '../../services/adminService';
@@ -23,8 +24,8 @@ interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   onLogout?: () => void;
-  onNavigate?: (view: 'dashboard' | 'quizzes' | 'media' | 'blogs' | 'operations') => void;
-  currentView?: 'dashboard' | 'quizzes' | 'media' | 'blogs' | 'operations';
+  onNavigate?: (view: 'dashboard' | 'quizzes' | 'media' | 'resources' | 'study-materials' | 'blogs' | 'operations') => void;
+  currentView?: 'dashboard' | 'quizzes' | 'media' | 'resources' | 'study-materials' | 'blogs' | 'operations';
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout, onNavigate, currentView = 'dashboard' }) => {
@@ -56,6 +57,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout, on
       label: 'Media Manager',
       href: '#',
       key: 'media' as const,
+    },
+    {
+      icon: FolderKanban,
+      label: 'Resources',
+      href: '#',
+      key: 'resources' as const,
+    },
+    {
+      icon: FolderKanban,
+      label: 'Study Materials',
+      href: '#',
+      key: 'study-materials' as const,
     },
     {
       icon: NotebookText,

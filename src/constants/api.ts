@@ -51,6 +51,8 @@ export const API_ENDPOINTS = {
     BY_ID: (resourceId: string) => `/admin/resources/${resourceId}`,
     UPDATE: (resourceId: string) => `/admin/resources/${resourceId}`,
     DELETE: (resourceId: string) => `/admin/resources/${resourceId}`,
+    CATEGORIES: '/admin/resources/categories',
+    CATEGORY_BY_ID: (categoryId: string) => `/admin/resources/categories/${categoryId}`,
   },
 } as const;
 

@@ -122,6 +122,15 @@ export interface PaginatedResourcesResponse {
   hasPrev: boolean;
 }
 
+export interface StudyMaterialCategory {
+  _id: string;
+  name: string;
+  isActive: boolean;
+  resourceCount: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface AudioSectionListItem {
   _index: number;
   title: string;

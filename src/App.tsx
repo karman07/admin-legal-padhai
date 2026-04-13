@@ -3,6 +3,8 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { Dashboard } from './pages/Dashboard';
 import { QuizAdmin } from './pages/QuizAdmin';
 import { MediaManager } from './pages/MediaManager';
+import { StudyMaterialManager } from './pages/StudyMaterialManager';
+import { ResourcesAdminManager } from './pages/ResourcesAdminManager';
 import { BlogsAdmin } from './pages/BlogsAdmin';
 import { OperationsCenter } from './pages/OperationsCenter';
 import { Login } from './pages/Login';
@@ -12,7 +14,7 @@ import { adminService } from './services/adminService';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [view, setView] = useState<'dashboard' | 'quizzes' | 'media' | 'blogs' | 'operations'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'quizzes' | 'media' | 'resources' | 'study-materials' | 'blogs' | 'operations'>('dashboard');
 
   useEffect(() => {
     // Check if user is already authenticated
@@ -68,7 +70,7 @@ export default App;
 
 // Small wrapper to reuse existing Sidebar component and switch views
 import { Sidebar } from './components/layout/Sidebar';
-const SidebarStateWrapper: React.FC<{ view: 'dashboard' | 'quizzes' | 'media' | 'blogs' | 'operations'; setView: (v: 'dashboard' | 'quizzes' | 'media' | 'blogs' | 'operations') => void; onLogout: () => void }>
+const SidebarStateWrapper: React.FC<{ view: 'dashboard' | 'quizzes' | 'media' | 'resources' | 'study-materials' | 'blogs' | 'operations'; setView: (v: 'dashboard' | 'quizzes' | 'media' | 'resources' | 'study-materials' | 'blogs' | 'operations') => void; onLogout: () => void }>
   = ({ view, setView, onLogout }) => {
   const [sidebarOpen, setSidebarOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 1024 : true));
   return (
@@ -83,6 +85,10 @@ const SidebarStateWrapper: React.FC<{ view: 'dashboard' | 'quizzes' | 'media' | 
           <BlogsAdmin />
         ) : view === 'operations' ? (
           <OperationsCenter />
+        ) : view === 'resources' ? (
+          <ResourcesAdminManager />
+        ) : view === 'study-materials' ? (
+          <StudyMaterialManager />
         ) : (
           <MediaManager />
         )}

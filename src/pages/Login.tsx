@@ -52,7 +52,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 dark:from-slate-950 dark:via-blue-950 dark:to-slate-900 flex items-center justify-center p-4">
       {/* Theme Toggle */}
       <button
         onClick={toggleTheme}
@@ -67,10 +67,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
             <span className="text-white font-bold text-2xl">LP</span>
           </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
             LegalPadhai Admin
           </CardTitle>
           <CardDescription className="text-base">
@@ -124,7 +124,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
             <Button
               type="submit"
-              className="w-full h-11 text-base font-semibold"
+              className="w-full h-11 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/30"
               disabled={loading}
             >
               {loading ? (

@@ -23,7 +23,6 @@ export const QuizList: React.FC<QuizListProps> = ({ onEdit, onCreate, onView }) 
   const [topicFilter, setTopicFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState<QuizType | ''>('');
-
   const fetchQuizzes = async (page = pagination.page, limit = pagination.limit) => {
     setLoading(true);
     try {

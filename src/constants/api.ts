@@ -3,8 +3,12 @@
  * LegalPadhai Admin Panel
  */
 
+const _rawUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined) || 'https://api.legalpadhai.ai';
+// Ensure the base URL always ends with /api regardless of how the env var is set
+const _baseUrl = _rawUrl.replace(/\/api$/, '') + '/api';
+
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://api.legalpadhai.ai/api',
+  BASE_URL: _baseUrl,
   TIMEOUT: 30000,
 } as const;
 
